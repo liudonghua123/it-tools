@@ -1,0 +1,39 @@
+name: gh-pages
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    tags:
+
+# https://docs.github.com/zh/actions/using-jobs/assigning-permissions-to-jobs
+permissions: write-all
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_and_deploy:
+    name: Build depolyable files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Initialization ...
+        run: |
+          npm i -g pnpm
+          pnpm install
+      - name: Building ...
+        run: |
+          pnpm run build --base ./
+      - name: Deploy 🚀
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
